@@ -1,0 +1,43 @@
+--
+ name: GoGoSplunk
+ hosts: <groupGoesHere>
+
+ tasks:
+ - name: DeploySplunkThings
+   copy:
+     src: ~/splunk-<version>.tgz
+     dst: /opt
+   become: yes
+ - name: Stop Splunk
+   service:
+     name: splunk
+     state: stopped
+ - name: Make Splunk Backup Folder
+   file:
+     path: ~/splunkbackup
+     state: directory
+     mode: 0770
+ - name: Backup Splunk Instance
+   archive:
+     path: /opt/splunk/etc
+     dest: ~/splunkbackup/splunkbackup<version>.gz
+   become: yes
+ - name: Extract Splunk Package
+   shell: tar -zxf /opt/splunk-<version>.tgz -C /opt --overwrite
+   become: yes
+ - name: Chown this!
+   shell: chown -R splunk:splunk /opt/splunk
+   become: yes
+ - name: Start Splunk
+   shell: /opt/splunk/bin/splunk start --accept-license --answer-yes
+   become: yes
+   become_user: splunk
+ - name: STOP DANGIT!
+   shell: /opt/splunk/bin/splunk stop 
+   become: yes
+   become_user: splunk
+ - name: Wake Up Sleepyhead
+   service:
+     name: splunk
+     state: started
+   become: yes
