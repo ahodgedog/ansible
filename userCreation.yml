@@ -1,0 +1,14 @@
+---
+ name: User creation across multiple servers
+ hosts: allHosts
+
+ tasks:
+ – name: Configure user account using hashed password
+   user:
+     name: john.doe
+     comment: John Doe
+     groups: wheel
+     password: <hashed output>
+     state: present
+   become: yes
+   become_method: sudo
