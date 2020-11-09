@@ -1,0 +1,25 @@
+---
+ name: Bulk Firewall Rule Changes
+ hosts: all-hosts
+
+ tasks:
+ – name: Backup Current Firewall Rule
+   archive:
+     path: /etc/firewalld/zones/public.xml
+     dest: /etc/firewalld/zones/{{ ansible_hostname }}-publicRuleBackup{{ansible_date_time.date}}.zip
+   format: zip
+   become: yes
+   become_method: sudo
+ – name: firewalld rules
+   firewalld:
+     rich_rule: rule family=ipv4 port port=<portNumber> protocol=tcp source address={{ item }} accept
+     zone: public
+     state: enabled
+     permanent: yes
+   become: yes
+   become_method: sudo
+   with_items:
+     – <ipAddy#1>
+     – <ipAddy#2>
+     – <ipAddy#3>
+     – <etc>
